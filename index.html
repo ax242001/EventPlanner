@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Planning Budget Calculator</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .calculator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-section, .results-section {
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .results-section h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .result-label {
+            font-weight: 600;
+        }
+        
+        .budget-status {
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .budget-exceeded {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+        
+        .budget-sufficient {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        
+        .budget-exact {
+            background-color: rgba(243, 156, 18, 0.2);
+            color: var(--warning-color);
+            border: 1px solid var(--warning-color);
+        }
+        
+        .items-list {
+            margin-top: 20px;
+        }
+        
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .item-name {
+            font-weight: 500;
+        }
+        
+        .item-cost {
+            font-weight: 600;
+        }
+        
+        .summary-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .total-cost {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            border-top: 2px solid var(--secondary-color);
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Checkbox Styles */
+        .checkbox-group {
+            margin: 15px 0;
+        }
+        
+        .checkbox-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+        
+        .checkbox-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .checkbox-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid #ddd;
+        }
+        
+        .checkbox-option:hover {
+            border-color: var(--secondary-color);
+        }
+        
+        .checkbox-option.selected {
+            border-color: var(--success-color);
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+        
+        .checkbox-option input {
+            margin-right: 10px;
+            width: auto;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-weight: 500;
+        }
+        
+        .checkbox-price {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        
+        .section-title {
+            margin: 20px 0 10px;
+            color: var(--primary-color);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        
+        .selection-summary {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .selection-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .selection-total {
+            font-weight: 600;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+        
+        .attendee-group {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .attendee-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .attendee-count {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .cost-breakdown {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .breakdown-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Event Planning Budget Calculator</h1>
+            <p class="description">Calculate your event costs and manage your budget effectively</p>
+        </header>
+        
+        <div class="calculator">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="totalBudget">Total Budget (₦)</label>
+                    <input type="number" id="totalBudget" placeholder="Enter total budget">
+                </div>
+                
+                <h3 class="section-title">Attendee Counts</h3>
+                
+                <div class="form-group">
+                    <label for="eldersCount">Number of Elders</label>
+                    <input type="number" id="eldersCount" value="0" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="pastorsCount">Number of Pastors</label>
+                    <input type="number" id="pastorsCount" value="0" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="adultsCount">Number of Adults</label>
+                    <input type="number" id="adultsCount" value="0" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="kidsCount">Number of Kids</label>
+                    <input type="number" id="kidsCount" value="0" min="0">
+                </div>
+                
+                <h3 class="section-title">Food Selection</h3>
+                <p>Select food items for each attendee group (multiple selections allowed)</p>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-title">Elders & Pastors Food Options</div>
+                    <div class="checkbox-options" id="elderFoodOptions">
+                        <!-- Options will be populated by JavaScript -->
+                    </div>
+                    <div class="selection-summary" id="elderFoodSummary">
+                        <div class="selection-item">
+                            <span>No food items selected</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-title">Adults Food Options</div>
+                    <div class="checkbox-options" id="adultFoodOptions">
+                        <!-- Options will be populated by JavaScript -->
+                    </div>
+                    <div class="selection-summary" id="adultFoodSummary">
+                        <div class="selection-item">
+                            <span>No food items selected</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-title">Kids Food Options</div>
+                    <div class="checkbox-options" id="kidsFoodOptions">
+                        <!-- Options will be populated by JavaScript -->
+                    </div>
+                    <div class="selection-summary" id="kidsFoodSummary">
+                        <div class="selection-item">
+                            <span>No food items selected</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="section-title">Giveaway Selection</h3>
+                <p>Select multiple giveaway items for your attendees</p>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-options" id="giveawayOptions">
+                        <!-- Options will be populated by JavaScript -->
+                    </div>
+                    <div class="selection-summary" id="giveawaySummary">
+                        <div class="selection-item">
+                            <span>No giveaway items selected</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="calculateBtn">Calculate Budget</button>
+            </div>
+            
+            <div class="results-section">
+                <h2>Budget Breakdown</h2>
+                
+                <div class="result-item">
+                    <span class="result-label">Total Attendees:</span>
+                    <span id="totalAttendees">0</span>
+                </div>
+                
+                <div class="attendee-group">
+                    <div class="attendee-header">
+                        <span class="result-label">Elders & Pastors</span>
+                        <span class="attendee-count" id="elderPastorCount">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Food Cost:</span>
+                        <span id="eldersFoodCost">₦0</span>
+                    </div>
+                    <div id="elderFoodDetails">
+                        <!-- Food details will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="attendee-group">
+                    <div class="attendee-header">
+                        <span class="result-label">Adults</span>
+                        <span class="attendee-count" id="adultCount">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Food Cost:</span>
+                        <span id="adultsFoodCost">₦0</span>
+                    </div>
+                    <div id="adultFoodDetails">
+                        <!-- Food details will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="attendee-group">
+                    <div class="attendee-header">
+                        <span class="result-label">Kids</span>
+                        <span class="attendee-count" id="kidsCountDisplay">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Food Cost:</span>
+                        <span id="kidsFoodCost">₦0</span>
+                    </div>
+                    <div id="kidsFoodDetails">
+                        <!-- Food details will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <span class="result-label">Giveaway Cost:</span>
+                    <span id="giveawayCost">₦0</span>
+                </div>
+                
+                <div class="summary-section">
+                    <div class="summary-row">
+                        <span>Total Food Cost:</span>
+                        <span id="totalFoodCost">₦0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Giveaway Cost:</span>
+                        <span id="totalGiveawayCost">₦0</span>
+                    </div>
+                    <div class="summary-row total-cost">
+                        <span>Total Event Cost:</span>
+                        <span id="totalEventCost">₦0</span>
+                    </div>
+                </div>
+                
+                <div id="budgetStatus" class="budget-status">
+                    Enter your budget and click calculate
+                </div>
+                
+                <div class="cost-breakdown">
+                    <div class="breakdown-title">Giveaway Details</div>
+                    <div id="giveawayDetails">
+                        <!-- Giveaway details will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data for food and giveaway items
+        const foodItems = [
+            { id: 'rice_fish', name: 'Rice and stew with fish', price: 4500 },
+            { id: 'rice_chicken', name: 'Rice and stew with chicken', price: 5000 },
+            { id: 'swallow_fish', name: 'Swallow and soup with fish', price: 5500 }
+        ];
+        
+        const giveawayItems = [
+            { id: 'jotter', name: 'Jotter', price: 3000 },
+            { id: 'mini_tower', name: 'Mini tower', price: 3000 },
+            { id: 'mug_cup', name: 'Mug cup', price: 4000 },
+            { id: 'face_cap', name: 'Face cap', price: 4000 },
+            { id: 'liquid_soap', name: 'Liquid soap', price: 2500 },
+            { id: 'mini_handbag', name: 'Mini handbag', price: 2500 },
+            { id: 'hand_fan', name: 'Hand-fan', price: 3000 },
+            { id: 'pocket_perfume', name: 'Pocket perfume', price: 5000 },
+            { id: 'slipper_pairs', name: 'Slipper pairs', price: 3500 }
+        ];
+        
+        // Initialize the checkboxes
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCheckboxes();
+            
+            // Set default selections
+            setDefaultSelections();
+            
+            // Add event listener to calculate button
+            document.getElementById('calculateBtn').addEventListener('click', calculateBudget);
+            
+            // Update summaries initially
+            updateFoodSummary('elderFood');
+            updateFoodSummary('adultFood');
+            updateFoodSummary('kidsFood');
+            updateGiveawaySummary();
+        });
+        
+        function initializeCheckboxes() {
+            // Create food options for elders
+            const elderFoodContainer = document.getElementById('elderFoodOptions');
+            foodItems.forEach(item => {
+                const option = createCheckboxOption(item, 'elderFood');
+                elderFoodContainer.appendChild(option);
+            });
+            
+            // Create food options for adults
+            const adultFoodContainer = document.getElementById('adultFoodOptions');
+            foodItems.forEach(item => {
+                const option = createCheckboxOption(item, 'adultFood');
+                adultFoodContainer.appendChild(option);
+            });
+            
+            // Create food options for kids
+            const kidsFoodContainer = document.getElementById('kidsFoodOptions');
+            foodItems.forEach(item => {
+                const option = createCheckboxOption(item, 'kidsFood');
+                kidsFoodContainer.appendChild(option);
+            });
+            
+            // Create giveaway options
+            const giveawayContainer = document.getElementById('giveawayOptions');
+            giveawayItems.forEach(item => {
+                const option = createCheckboxOption(item, 'giveaway');
+                giveawayContainer.appendChild(option);
+            });
+        }
+        
+        function createCheckboxOption(item, groupName) {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'checkbox-option';
+            
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.name = groupName;
+            input.value = item.price;
+            input.id = `${groupName}_${item.id}`;
+            input.dataset.itemName = item.name;
+            
+            const label = document.createElement('label');
+            label.className = 'checkbox-label';
+            label.htmlFor = `${groupName}_${item.id}`;
+            label.innerHTML = `
+                <span>${item.name}</span>
+                <span class="checkbox-price">₦${item.price.toLocaleString()}</span>
+            `;
+            
+            optionDiv.appendChild(input);
+            optionDiv.appendChild(label);
+            
+            // Add click event to toggle the option
+            optionDiv.addEventListener('click', function() {
+                // Toggle selected class
+                this.classList.toggle('selected');
+                input.checked = !input.checked;
+                
+                // Update appropriate summary
+                if (groupName.includes('Food')) {
+                    updateFoodSummary(groupName);
+                } else {
+                    updateGiveawaySummary();
+                }
+            });
+            
+            return optionDiv;
+        }
+        
+        function setDefaultSelections() {
+            // Set default food selections based on requirements
+            document.getElementById('elderFood_swallow_fish').click();
+            document.getElementById('adultFood_rice_chicken').click();
+            document.getElementById('kidsFood_rice_chicken').click();
+        }
+        
+        function updateFoodSummary(groupName) {
+            const summaryElement = document.getElementById(`${groupName}Summary`);
+            const selectedFoods = document.querySelectorAll(`input[name="${groupName}"]:checked`);
+            
+            if (selectedFoods.length === 0) {
+                summaryElement.innerHTML = '<div class="selection-item"><span>No food items selected</span></div>';
+                return;
+            }
+            
+            let summaryHTML = '';
+            let totalCost = 0;
+            
+            selectedFoods.forEach(checkbox => {
+                const itemName = checkbox.dataset.itemName;
+                const itemPrice = parseInt(checkbox.value);
+                totalCost += itemPrice;
+                
+                summaryHTML += `
+                    <div class="selection-item">
+                        <span>${itemName}</span>
+                        <span>₦${itemPrice.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            summaryHTML += `
+                <div class="selection-item selection-total">
+                    <span>Total per person:</span>
+                    <span>₦${totalCost.toLocaleString()}</span>
+                </div>
+            `;
+            
+            summaryElement.innerHTML = summaryHTML;
+        }
+        
+        function updateGiveawaySummary() {
+            const giveawaySummary = document.getElementById('giveawaySummary');
+            const selectedGiveaways = document.querySelectorAll('input[name="giveaway"]:checked');
+            
+            if (selectedGiveaways.length === 0) {
+                giveawaySummary.innerHTML = '<div class="selection-item"><span>No giveaway items selected</span></div>';
+                return;
+            }
+            
+            let summaryHTML = '';
+            let totalCost = 0;
+            
+            selectedGiveaways.forEach(checkbox => {
+                const itemName = checkbox.dataset.itemName;
+                const itemPrice = parseInt(checkbox.value);
+                totalCost += itemPrice;
+                
+                summaryHTML += `
+                    <div class="selection-item">
+                        <span>${itemName}</span>
+                        <span>₦${itemPrice.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            summaryHTML += `
+                <div class="selection-item selection-total">
+                    <span>Total per attendee:</span>
+                    <span>₦${totalCost.toLocaleString()}</span>
+                </div>
+            `;
+            
+            giveawaySummary.innerHTML = summaryHTML;
+        }
+        
+        function calculateBudget() {
+            // Get input values
+            const totalBudget = parseFloat(document.getElementById('totalBudget').value) || 0;
+            const eldersCount = parseInt(document.getElementById('eldersCount').value) || 0;
+            const pastorsCount = parseInt(document.getElementById('pastorsCount').value) || 0;
+            const adultsCount = parseInt(document.getElementById('adultsCount').value) || 0;
+            const kidsCount = parseInt(document.getElementById('kidsCount').value) || 0;
+            
+            // Calculate attendee counts
+            const elderPastorCount = eldersCount + pastorsCount;
+            const totalAttendees = elderPastorCount + adultsCount + kidsCount;
+            
+            // Update attendee counts in results
+            document.getElementById('elderPastorCount').textContent = elderPastorCount;
+            document.getElementById('adultCount').textContent = adultsCount;
+            document.getElementById('kidsCountDisplay').textContent = kidsCount;
+            document.getElementById('totalAttendees').textContent = totalAttendees;
+            
+            // Get selected food items and calculate costs
+            const elderFoodCost = calculateFoodCost('elderFood', elderPastorCount);
+            const adultFoodCost = calculateFoodCost('adultFood', adultsCount);
+            const kidsFoodCost = calculateFoodCost('kidsFood', kidsCount);
+            
+            const totalFoodCost = elderFoodCost.total + adultFoodCost.total + kidsFoodCost.total;
+            
+            // Get selected giveaway items and calculate total per attendee
+            const selectedGiveaways = document.querySelectorAll('input[name="giveaway"]:checked');
+            let giveawayPricePerAttendee = 0;
+            selectedGiveaways.forEach(checkbox => {
+                giveawayPricePerAttendee += parseInt(checkbox.value);
+            });
+            
+            // Giveaway cost
+            const totalGiveawayCost = totalAttendees * giveawayPricePerAttendee;
+            
+            // Total event cost
+            const totalEventCost = totalFoodCost + totalGiveawayCost;
+            
+            // Update UI with calculated values
+            document.getElementById('eldersFoodCost').textContent = `₦${elderFoodCost.total.toLocaleString()}`;
+            document.getElementById('adultsFoodCost').textContent = `₦${adultFoodCost.total.toLocaleString()}`;
+            document.getElementById('kidsFoodCost').textContent = `₦${kidsFoodCost.total.toLocaleString()}`;
+            document.getElementById('giveawayCost').textContent = `₦${totalGiveawayCost.toLocaleString()}`;
+            document.getElementById('totalFoodCost').textContent = `₦${totalFoodCost.toLocaleString()}`;
+            document.getElementById('totalGiveawayCost').textContent = `₦${totalGiveawayCost.toLocaleString()}`;
+            document.getElementById('totalEventCost').textContent = `₦${totalEventCost.toLocaleString()}`;
+            
+            // Update food details in results
+            updateFoodDetails('elderFood', elderFoodCost, elderPastorCount, 'elderFoodDetails');
+            updateFoodDetails('adultFood', adultFoodCost, adultsCount, 'adultFoodDetails');
+            updateFoodDetails('kidsFood', kidsFoodCost, kidsCount, 'kidsFoodDetails');
+            
+            // Update giveaway details
+            updateGiveawayDetails(selectedGiveaways, totalAttendees, totalGiveawayCost);
+            
+            // Budget status
+            const budgetStatus = document.getElementById('budgetStatus');
+            const difference = totalBudget - totalEventCost;
+            
+            if (totalBudget === 0) {
+                budgetStatus.textContent = "Please enter your total budget";
+                budgetStatus.className = "budget-status";
+            } else if (difference < 0) {
+                budgetStatus.textContent = `Budget Exceeded by ₦${Math.abs(difference).toLocaleString()}`;
+                budgetStatus.className = "budget-status budget-exceeded";
+            } else if (difference === 0) {
+                budgetStatus.textContent = "Budget Exactly Matched";
+                budgetStatus.className = "budget-status budget-exact";
+            } else {
+                budgetStatus.textContent = `Budget Sufficient - ₦${difference.toLocaleString()} Remaining`;
+                budgetStatus.className = "budget-status budget-sufficient";
+            }
+        }
+        
+        function calculateFoodCost(groupName, attendeeCount) {
+            const selectedFoods = document.querySelectorAll(`input[name="${groupName}"]:checked`);
+            let totalCost = 0;
+            let items = [];
+            
+            selectedFoods.forEach(checkbox => {
+                const itemName = checkbox.dataset.itemName;
+                const itemPrice = parseInt(checkbox.value);
+                const itemTotal = itemPrice * attendeeCount;
+                totalCost += itemTotal;
+                
+                items.push({
+                    name: itemName,
+                    price: itemPrice,
+                    total: itemTotal
+                });
+            });
+            
+            return {
+                total: totalCost,
+                items: items
+            };
+        }
+        
+        function updateFoodDetails(groupName, foodCost, attendeeCount, elementId) {
+            const detailsElement = document.getElementById(elementId);
+            
+            if (foodCost.items.length === 0) {
+                detailsElement.innerHTML = '<div class="item-row"><span>No food items selected</span></div>';
+                return;
+            }
+            
+            let detailsHTML = '';
+            
+            foodCost.items.forEach(item => {
+                detailsHTML += `
+                    <div class="item-row">
+                        <span class="item-name">${item.name} (${attendeeCount} × ₦${item.price.toLocaleString()})</span>
+                        <span class="item-cost">₦${item.total.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            detailsElement.innerHTML = detailsHTML;
+        }
+        
+        function updateGiveawayDetails(selectedGiveaways, totalAttendees, totalGiveawayCost) {
+            const giveawayDetails = document.getElementById('giveawayDetails');
+            
+            if (selectedGiveaways.length === 0) {
+                giveawayDetails.innerHTML = '<div class="item-row"><span>No giveaway items selected</span></div>';
+                return;
+            }
+            
+            let detailsHTML = '';
+            let totalPerAttendee = 0;
+            
+            selectedGiveaways.forEach(checkbox => {
+                const itemName = checkbox.dataset.itemName;
+                const itemPrice = parseInt(checkbox.value);
+                const itemTotal = itemPrice * totalAttendees;
+                totalPerAttendee += itemPrice;
+                
+                detailsHTML += `
+                    <div class="item-row">
+                        <span class="item-name">${itemName} (${totalAttendees} × ₦${itemPrice.toLocaleString()})</span>
+                        <span class="item-cost">₦${itemTotal.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            detailsHTML += `
+                <div class="item-row" style="border-top: 1px solid #eee; padding-top: 10px; font-weight: 600;">
+                    <span class="item-name">Total per attendee: ₦${totalPerAttendee.toLocaleString()}</span>
+                    <span class="item-cost">Total: ₦${totalGiveawayCost.toLocaleString()}</span>
+                </div>
+            `;
+            
+            giveawayDetails.innerHTML = detailsHTML;
+        }
+    </script>
+</body>
+</html>
